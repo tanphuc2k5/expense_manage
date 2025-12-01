@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Chi tiêu theo tháng{% endblock %}
+{% block content %}
+
+<h3 class="mb-4 fw-semibold"><i class="bi bi-calendar3 me-2"></i>Chi tiêu theo tháng</h3>
+
+<form class="row g-3 mb-3" method="get">
+  <div class="col-md-3">
+    <label class="form-label">Tháng</label>
+    <input type="number" name="month" class="form-control" min="1" max="12" value="{{ month }}">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Năm</label>
+    <input type="number" name="year" class="form-control" value="{{ year }}">
+  </div>
+  <div class="col-md-3 align-self-end">
+    <button class="btn btn-primary"><i class="bi bi-search"></i> Xem</button>
+  </div>
+</form>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card info-card income-card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="small text-muted text-uppercase mb-1">Tổng thu (tháng)</div>
+        <h3>{{ "{:,.0f}".format(total_income) }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card info-card expense-card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="small text-muted text-uppercase mb-1">Tổng chi (tháng)</div>
+        <h3>{{ "{:,.0f}".format(total_expense) }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card info-card balance-card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="small text-muted text-uppercase mb-1">Số dư (tháng)</div>
+        <h3>{{ "{:,.0f}".format(total_income - total_expense) }}</h3>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h5 class="mb-2">Danh sách chi tiết</h5>
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Ngày</th><th>Loại</th><th>Danh mục</th>
+            <th class="text-end">Số tiền</th><th>Ghi chú</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for e in expenses %}
+          <tr>
+            <td>{{ e.date }}</td>
+            <td>{% if e.type=='Income' %}<span class="badge bg-success-subtle text-success">Thu</span>{% else %}
+                <span class="badge bg-danger-subtle text-danger">Chi</span>{% endif %}
+            </td>
+            <td>{{ e.category.name }}</td>
+            <td class="text-end">{{ "{:,.0f}".format(e.amount) }}</td>
+            <td class="note-cell">{{ e.note }}</td>
+            <td><a href="{{ url_for('expenses.detail', expense_id=e.id) }}" class="btn btn-sm btn-outline-primary">Chi tiết</a></td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-center text-muted py-3">Không có dữ liệu.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<h5 class="mb-2">Báo cáo chi tiêu theo danh mục</h5>
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    {% if category_stats %}
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead class="table-light">
+          <tr><th>Danh mục</th><th class="text-end">Tổng chi</th></tr>
+        </thead>
+        <tbody>
+          {% for name, total in category_stats %}
+          <tr>
+            <td>{{ name }}</td>
+            <td class="text-end">{{ "{:,.0f}".format(total) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="text-muted mb-0">Chưa có chi tiêu nào trong tháng này.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
